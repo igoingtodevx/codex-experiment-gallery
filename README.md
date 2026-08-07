@@ -2,11 +2,11 @@
 
 A live gallery of small, inspectable AI developer workflows.
 
-**Full provider demo (VPS):** https://hermes-vps.tail309730.ts.net:10001/
+**Full provider demo (VPS):** https://hermes-vps.tail309730.ts.net/
 
-**Vercel UI deployment:** https://codex-experiment-gallery.vercel.app/
+**Vercel deployment:** https://codex-experiment-gallery.vercel.app/
 
-The VPS demo is the production provider target. The Vercel Hobby deployment is a UI mirror until a compatible function plan and production provider environment are configured.
+The VPS demo is the canonical provider target with the production environment isolated on the server. The Vercel deployment is a UI-only mirror until its server-side `OPENAI_API_KEY` is deliberately configured.
 
 This is not a collection of prompt cards. Each experiment has a typed input contract, a server-side runner, a schema-constrained result, an example, and a renderer that matches the result shape.
 
@@ -56,7 +56,7 @@ There is no database in V1. Examples and registry definitions are versioned sour
 
 ## Local setup
 
-Requirements: Node.js 20.9+ and npm.
+Requirements: Node.js 22.x and npm.
 
 ```bash
 npm install

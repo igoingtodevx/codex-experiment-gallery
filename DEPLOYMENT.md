@@ -2,11 +2,11 @@
 
 ## Production target
 
-- Full provider demo: https://hermes-vps.tail309730.ts.net:10001/
-- Vercel UI mirror: https://codex-experiment-gallery.vercel.app/
+- Full provider demo: https://hermes-vps.tail309730.ts.net/
+- Vercel deployment: https://codex-experiment-gallery.vercel.app/
 - GitHub: https://github.com/igoingtodevx/codex-experiment-gallery
 
-The full provider runtime runs on the existing Hermes VPS. Vercel Hobby serves the UI mirror; its 10-second function limit is below the measured Vision request time, so the Vercel deployment is not the provider target.
+The full provider runtime runs on the existing Hermes VPS. Vercel can also run the provider routes when its environment is configured; the VPS remains the canonical target because it keeps the provider key isolated and avoids duplicating quota usage.
 
 ## VPS service
 
@@ -15,7 +15,7 @@ The full provider runtime runs on the existing Hermes VPS. Vercel Hobby serves t
 - Local bind: `127.0.0.1:3005`
 - Environment file: `/home/deploy/.config/codex-experiment-gallery.env` (chmod 600; never commit this file)
 - Model: `gpt-5.6-luna`
-- Public exposure: Tailscale Funnel HTTPS port `10001`
+- Public exposure: Tailscale Funnel HTTPS port `443` (`https://hermes-vps.tail309730.ts.net/`)
 
 The service is a user-level systemd unit. The `deploy` user has linger enabled, so the unit survives logout and starts with the user manager.
 
@@ -29,7 +29,7 @@ curl -fsS http://127.0.0.1:3005/
 tailscale funnel status
 ```
 
-Do not change the existing Tailscale routes on ports `8443` and `10000`. Port `10001` is reserved for this app.
+Do not change the existing Tailscale routes on ports `8443` and `10000`. Port `443` is reserved for this app.
 
 ## Release sequence
 
