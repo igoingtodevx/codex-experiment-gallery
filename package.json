@@ -16,7 +16,7 @@
     "browser:interaction": "node scripts/interaction-smoke.mjs"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": "22.x"
   },
   "dependencies": {
     "next": "16.3.0",

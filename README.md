@@ -2,7 +2,11 @@
 
 A live gallery of small, inspectable AI developer workflows.
 
-**Live demo:** pending Vercel deployment
+**Full provider demo (VPS):** https://hermes-vps.tail309730.ts.net:10001/
+
+**Vercel UI deployment:** https://codex-experiment-gallery.vercel.app/
+
+The VPS demo is the production provider target. The Vercel Hobby deployment is a UI mirror until a compatible function plan and production provider environment are configured.
 
 This is not a collection of prompt cards. Each experiment has a typed input contract, a server-side runner, a schema-constrained result, an example, and a renderer that matches the result shape.
 
