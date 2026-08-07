@@ -13,7 +13,7 @@ The full provider runtime runs on the existing Hermes VPS. Vercel Hobby serves t
 - Checkout: `/home/deploy/workspace/codex-experiment-gallery`
 - User unit: `~/.config/systemd/user/codex-experiment-gallery.service`
 - Local bind: `127.0.0.1:3005`
-- Environment file: `/home/deploy/.hermes/.env` (never commit this file)
+- Environment file: `/home/deploy/.config/codex-experiment-gallery.env` (chmod 600; never commit this file)
 - Model: `gpt-5.6-luna`
 - Public exposure: Tailscale Funnel HTTPS port `10001`
 
