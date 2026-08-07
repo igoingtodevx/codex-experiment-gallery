@@ -1,0 +1,42 @@
+{
+  "name": "codex-experiment-gallery",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A live gallery of inspectable AI developer workflows.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "browser:smoke": "node scripts/browser-smoke.mjs",
+    "browser:interaction": "node scripts/interaction-smoke.mjs"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "next": "16.3.0",
+    "openai": "7.4.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "yaml": "2.8.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@typescript-eslint/eslint-plugin": "8.47.0",
+    "@typescript-eslint/parser": "8.47.0",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.3.0",
+    "vitest": "4.1.10"
+  }
+}

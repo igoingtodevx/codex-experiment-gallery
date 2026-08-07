@@ -1,75 +1,105 @@
-# 🧪 Codex Experiment Gallery
+# Codex Experiment Gallery
 
-**Eine Sammlung moderner AI-Developer-Tools in einer Oberfläche.**
+A live gallery of small, inspectable AI developer workflows.
 
-Statt einer großen Anwendung: **20 kleine AI-Experimente**, die jeweils einen konkreten Developer-Workflow lösen. Die Portfolio-Zentrale für AI-Engineering.
+**Live demo:** pending Vercel deployment
 
-## ✨ Features (20 Experimente)
+This is not a collection of prompt cards. Each experiment has a typed input contract, a server-side runner, a schema-constrained result, an example, and a renderer that matches the result shape.
 
-| # | Tool | # | Tool |
-|---|---|---|---|
-| 1 | 🛠 Fix my SQL | 11 | 📄 OpenAPI → SDK |
-| 2 | 🧪 Generate Unit Tests | 12 | 🏗 Architecture Review |
-| 3 | 📖 Explain Stacktrace | 13 | ⚡️ Performance Suggestions |
-| 4 | ♿️ Accessibility Audit | 14 | 🧠 Explain Regex |
-| 5 | 🔒 Security Review | 15 | 🔄 Convert JS → TypeScript |
-| 6 | 🎨 Screenshot → React Component | 16 | 📦 Dockerfile Generator |
-| 7 | 🧹 Refactor Function | 17 | ✍️ Commit Message Generator |
-| 8 | 📚 README Generator | 18 | 📊 Dependency Analyzer |
-| 9 | 🔍 Code Search | 19 | 🧮 Complexity Analyzer |
-| 10 | 🐛 Bug Hunter | 20 | 🧾 Changelog Generator |
+## The collection
 
-## 🛠 Tech Stack
+- **Explain a stacktrace** — structured diagnosis with fix and verification steps.
+- **Fix my SQL** — dialect-aware query rewrite with assumptions and findings.
+- **Refactor a function** — conservative code transformation with trade-offs.
+- **Generate unit tests** — test matrix plus executable test code.
+- **Security review** — evidence-bound findings with severity and remediation.
+- **Accessibility audit** — semantic and interaction review with actionable findings.
+- **OpenAPI → SDK slice** — contract-to-files generation for TypeScript, Python, or Go.
+- **README from a repo brief** — evidence-bound Markdown generation.
+- **Dependency risk map** — structured review plus server-side npm registry tool calling.
+- **Screenshot → React** — vision input producing a component and CSS starting point.
 
-| Layer | Technologie |
-|---|---|
-| Frontend | Next.js |
-| AI | OpenAI Responses API |
-| Editor | Monaco Editor |
-| UI | shadcn/ui |
-| Styling | Tailwind CSS |
-| Input | File Upload + Tool Calling |
+## Capability matrix
 
-## 🚀 Warum das beeindruckt
+- **Structured Outputs:** all experiments return Zod-validated result objects.
+- **Code generation:** refactors, tests, SDK files, README content, and React/CSS.
+- **File input:** screenshot uploads accept only PNG, JPEG, or WebP with a 1 MB limit.
+- **Vision:** screenshot-to-React uses an image input on the Responses API.
+- **Function calling:** dependency risk map can look up current npm metadata for packages in the submitted manifest.
+- **Purpose-built rendering:** diagnoses, findings, code, files, Markdown, dependencies, and raw structured JSON each have a distinct result view.
 
-Statt einer Demo sieht man sofort: **viele AI-Anwendungsfälle, gutes UI/UX, verschiedene Prompting-Strategien, Structured Outputs, Tool Calling, moderne Developer Experience**.
-Wirkt wie ein kleines OpenAI Codex Cookbook zum Anfassen — die perfekte Portfolio-Zentrale.
+## Architecture
 
-## 🧱 Struktur (geplant)
-
-```
-codex-experiment-gallery/
-├── app/
-│   ├── page.tsx          # Gallery-Übersicht (Kacheln)
-│   └── experiments/
-│       ├── fix-my-sql/
-│       ├── generate-tests/
-│       ├── explain-stacktrace/
-│       ├── security-review/
-│       └── ... (20 total)
-├── components/
-│   └── ui/               # shadcn/ui
-├── lib/
-│   ├── openai.ts         # Responses API Client
-│   └── prompts/          # Prompting-Strategien
-└── public/
+```text
+Next.js App Router
+  ├─ static gallery + generated experiment workspaces
+  ├─ typed experiment registry
+  └─ purpose-built result renderers
+          ↓
+POST /api/experiments/[slug]
+  ├─ request-size and rate-limit guard
+  ├─ Zod input validation
+  ├─ file type/size validation
+  └─ experiment runner
+          ↓
+OpenAI Responses API adapter
+  ├─ structured parse with zodTextFormat
+  ├─ image input for vision
+  └─ function calling for npm metadata
 ```
 
-## 📦 Setup (kommt)
+There is no database in V1. Examples and registry definitions are versioned source code. The in-session run history is intentionally ephemeral and contains timestamps only; submitted inputs are not persisted.
+
+## Local setup
+
+Requirements: Node.js 20.9+ and npm.
 
 ```bash
 npm install
-# .env: OPENAI_API_KEY
+cp .env.example .env.local
+# Add OPENAI_API_KEY to .env.local. Never commit it.
 npm run dev
 ```
 
-## 📌 Status
+Open `http://localhost:3000`.
 
-- [x] Repo angelegt (Idea-Scoping)
-- [ ] Base-UI (Next.js + shadcn/ui + Monaco)
-- [ ] OpenAI Responses API Integration
-- [ ] Experiment 1–5
-- [ ] Experiment 6–10
-- [ ] Experiment 11–15
-- [ ] Experiment 16–20
-- [ ] Deploy + Portfolio-Link
+Environment variables:
+
+- `OPENAI_API_KEY` — server-only provider credential; never exposed to client code.
+- `OPENAI_MODEL` — optional model override; defaults to `gpt-5.6-luna`.
+- `MAX_REQUEST_BYTES` — optional request ceiling; defaults to 1,500,000 bytes.
+
+## Quality checks
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run browser:smoke
+npm run browser:interaction
+```
+
+The browser smoke check runs the gallery and workspace at desktop and iPhone 13 viewports, verifies the ten cards, the primary Run action, the textarea, and horizontal overflow. The interaction check additionally covers search/filter state, category `aria-pressed` state, mobile touch-target heights, the truthful empty result state, and console/request failures.
+
+Provider smoke checks are intentionally not part of the default test suite because they incur model cost. The route is exercised manually with representative structured, tool-calling, and vision requests before deployment.
+
+## Security model
+
+- The provider key is read only in the Node.js route handler.
+- The browser submits a `FormData` request; it never receives a key or Hermes authentication state.
+- User code and uploaded images are treated as untrusted evidence and are never executed.
+- File MIME types and size are checked server-side; file names are not trusted.
+- Input schemas enforce field-specific size limits before a provider call.
+- Requests are rate-limited in-memory for the public demo and provider calls have a timeout.
+- Structured output is parsed and validated again with the experiment's Zod schema.
+- API errors are mapped to safe messages; stack traces and provider details stay server-side.
+- Prompt-injection language inside code, logs, documents, or screenshots is explicitly treated as data, not instructions.
+
+## Why this shape
+
+The product deliberately favors ten different, reliable workflows over twenty lightly renamed prompt wrappers. The registry keeps UI metadata, examples, input contracts, output contracts, and runner strategy in one typed place without introducing a generic framework. Vercel is the deployment target because the application is a small Next.js server/client boundary and needs no VPS or database changes.
+
+## License
+
+Private portfolio project by `igoingtodevx`.
