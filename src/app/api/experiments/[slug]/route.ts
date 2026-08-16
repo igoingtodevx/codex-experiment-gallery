@@ -3,6 +3,7 @@ import { getExperiment, runExperiment } from "@/lib/ai/runner";
 import { AppError, InputError } from "@/lib/ai/errors";
 import { assertRateLimit, getClientKey } from "@/lib/ai/rate-limit";
 import { assertRequestSize, readFileBytes } from "@/lib/ai/limits";
+import { assertBearerAuth } from "@/lib/ai/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -27,6 +28,7 @@ export async function POST(
 ) {
   const startedAt = Date.now();
   try {
+    assertBearerAuth(request);
     assertRequestSize(request);
     assertRateLimit(getClientKey(request));
     const { slug } = await params;
