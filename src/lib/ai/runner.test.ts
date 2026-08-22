@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { runExperiment } from "@/lib/ai/runner";
 import type { ExperimentProvider } from "@/lib/ai/provider";
-import { InputError } from "@/lib/ai/errors";
+import { InputError, ProviderOutputError } from "@/lib/ai/errors";
 import { experimentBySlug } from "@/lib/experiments/registry";
 
 const diagnosis = {
@@ -25,6 +25,18 @@ describe("experiment runner", () => {
     if (!experiment) throw new Error("fixture missing");
     const result = await runExperiment(experiment, { source: "Error: boom" }, { provider: fakeProvider });
     expect(result).toEqual(diagnosis);
+  });
+
+  it("classifies schema-invalid provider results as provider output failures", async () => {
+    const experiment = experimentBySlug.get("explain-stacktrace");
+    if (!experiment) throw new Error("fixture missing");
+    const invalidProvider: ExperimentProvider = {
+      ...fakeProvider,
+      runStructured: async () => ({ summary: "Missing required fields" }),
+    };
+    await expect(
+      runExperiment(experiment, { source: "Error: boom" }, { provider: invalidProvider }),
+    ).rejects.toBeInstanceOf(ProviderOutputError);
   });
 
   it("blocks malformed OpenAPI before provider invocation", async () => {

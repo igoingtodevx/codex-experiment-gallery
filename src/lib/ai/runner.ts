@@ -2,7 +2,7 @@ import { parse } from "yaml";
 import type { ZodTypeAny } from "zod";
 import { experimentBySlug } from "@/lib/experiments/registry";
 import type { ExperimentDefinition } from "@/lib/experiments/types";
-import { InputError } from "./errors";
+import { InputError, ProviderOutputError } from "./errors";
 import { OpenAIProvider, type ExperimentProvider } from "./provider";
 
 export type RunOptions = {
@@ -97,7 +97,7 @@ export async function runExperiment(
   }
 
   const validated = experiment.outputSchema.safeParse(result);
-  if (!validated.success) throw new InputError("The provider result did not match the experiment schema.");
+  if (!validated.success) throw new ProviderOutputError();
   return validated.data;
 }
 

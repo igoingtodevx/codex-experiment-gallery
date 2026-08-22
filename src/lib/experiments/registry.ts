@@ -1,5 +1,6 @@
 import {
   dependenciesOutputSchema,
+  dependencyInputSchema,
   diagnosisOutputSchema,
   explainStacktraceInputSchema,
   filesOutputSchema,
@@ -241,7 +242,7 @@ export const experiments = [
     examples: [
       { id: "small-app", label: "Small app manifest", description: "Looks up a few real npm packages and explains upgrade pressure.", values: { source: "{\n  \"name\": \"queue-lens\",\n  \"dependencies\": {\n    \"react\": \"^19.0.0\",\n    \"next\": \"^15.0.0\",\n    \"zod\": \"^3.22.0\"\n  },\n  \"devDependencies\": {\n    \"vitest\": \"^1.0.0\"\n  }\n}" } },
     ],
-    inputSchema: reviewInputSchema,
+    inputSchema: dependencyInputSchema,
     outputSchema: dependenciesOutputSchema,
     instructionStrategy: `${reviewStrategy}\nYou are an application dependency reviewer. Use the registry lookup tool only for package names present in the manifest. Explain uncertainty; do not call something vulnerable without evidence.`,
   },
