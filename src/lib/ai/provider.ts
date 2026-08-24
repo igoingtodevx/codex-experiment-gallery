@@ -106,7 +106,7 @@ export class OpenAIProvider implements ExperimentProvider {
       if (!response.output_parsed) throw new ProviderOutputError();
       return response.output_parsed;
     } catch (error) {
-      throw this.normalizeError(error);
+      throw this.normalizeError(error, signal);
     }
   }
 
@@ -136,7 +136,7 @@ export class OpenAIProvider implements ExperimentProvider {
       if (!response.output_parsed) throw new ProviderOutputError();
       return response.output_parsed;
     } catch (error) {
-      throw this.normalizeError(error);
+      throw this.normalizeError(error, signal);
     }
   }
 
@@ -195,13 +195,15 @@ export class OpenAIProvider implements ExperimentProvider {
       if (!final.output_parsed) throw new ProviderOutputError();
       return final.output_parsed;
     } catch (error) {
-      throw this.normalizeError(error);
+      throw this.normalizeError(error, signal);
     }
   }
 
-  private normalizeError(error: unknown): Error {
+  private normalizeError(error: unknown, signal?: AbortSignal): Error {
     if (error instanceof ProviderConfigError || error instanceof ProviderOutputError) return error;
-    if (isAbortError(error)) return new ProviderRequestError("The AI provider timed out. Try a smaller input.", 504);
+    if (signal?.aborted || isAbortError(error)) {
+      return new ProviderRequestError("The AI provider timed out. Try a smaller input.", 504);
+    }
     if (error instanceof OpenAI.APIError) {
       if (error.status === 429) return new ProviderRequestError("The AI provider rate limit was reached. Try again shortly.", 429);
       if (error.status === 401 || error.status === 403) return new ProviderRequestError("The AI provider rejected the server configuration.", 502);

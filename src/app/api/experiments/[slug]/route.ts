@@ -6,7 +6,7 @@ import { assertRequestSize, readFileBytes } from "@/lib/ai/limits";
 import { assertBearerAuth } from "@/lib/ai/auth";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 function jsonError(error: unknown, durationMs: number) {
   if (error instanceof AppError) {
@@ -54,7 +54,7 @@ export async function POST(
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 27_000);
+    const timeout = setTimeout(() => controller.abort(), 55_000);
     try {
       const result = await runExperiment(experiment, input, { file, signal: controller.signal });
       return NextResponse.json({

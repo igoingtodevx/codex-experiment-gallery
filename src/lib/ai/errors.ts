@@ -40,5 +40,13 @@ export class ProviderOutputError extends AppError {
 }
 
 export function isAbortError(error: unknown): boolean {
-  return error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError");
+  if (!(error instanceof Error)) return false;
+  const candidate = error as Error & { code?: unknown };
+  return (
+    error.name === "AbortError" ||
+    error.name === "TimeoutError" ||
+    error.name === "APIUserAbortError" ||
+    error.constructor.name === "APIUserAbortError" ||
+    candidate.code === "ERR_CANCELED"
+  );
 }
