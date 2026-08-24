@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { FormEvent, DragEvent, ChangeEvent } from "react";
 import type { PublicExperiment } from "@/lib/experiments/types";
 
@@ -142,6 +142,7 @@ export function ExperimentWorkspace({ experiment }: { experiment: PublicExperime
   const [running, setRunning] = useState(false);
   const [history, setHistory] = useState<RunHistoryItem[]>([]);
   const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   function updateValue(id: string, value: string) {
     setValues((current) => ({ ...current, [id]: value }));
@@ -165,7 +166,11 @@ export function ExperimentWorkspace({ experiment }: { experiment: PublicExperime
   function onDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setDragging(false);
-    setIncomingFile(event.dataTransfer.files[0]);
+    const nextFile = event.dataTransfer.files[0];
+    if (nextFile && fileInputRef.current) {
+      fileInputRef.current.files = event.dataTransfer.files;
+    }
+    setIncomingFile(nextFile);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -209,7 +214,7 @@ export function ExperimentWorkspace({ experiment }: { experiment: PublicExperime
               <div className="field-stack">
                 {experiment.inputFields.map((field) => {
                   const value = values[field.id] ?? "";
-                  if (field.type === "file") return <div className={`file-drop ${dragging ? "is-dragging" : ""}`} key={field.id} onDragEnter={(event) => { event.preventDefault(); setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={onDrop}><label htmlFor={`field-${field.id}`} className="file-drop-label"><span className="file-glyph">↑</span><strong>{file ? file.name : "Drop a screenshot here"}</strong><span>{file ? `${Math.round(file.size / 1024)} KB · ${file.type}` : "or choose a PNG, JPEG, or WebP"}</span></label><input id={`field-${field.id}`} type="file" accept={field.accept} required={field.required} aria-required={field.required} onChange={(event: ChangeEvent<HTMLInputElement>) => setIncomingFile(event.target.files?.[0])} /></div>;
+                  if (field.type === "file") return <div className={`file-drop ${dragging ? "is-dragging" : ""}`} key={field.id} onDragEnter={(event) => { event.preventDefault(); setDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={onDrop}><label htmlFor={`field-${field.id}`} className="file-drop-label"><span className="file-glyph">↑</span><strong>{file ? file.name : "Drop a screenshot here"}</strong><span>{file ? `${Math.round(file.size / 1024)} KB · ${file.type}` : "or choose a PNG, JPEG, or WebP"}</span></label><input ref={fileInputRef} id={`field-${field.id}`} type="file" accept={field.accept} required={field.required} aria-required={field.required} onChange={(event: ChangeEvent<HTMLInputElement>) => setIncomingFile(event.target.files?.[0])} /></div>;
                   return <label className={`field field-${field.type}`} htmlFor={`field-${field.id}`} key={field.id}><span className="field-label">{field.label}{field.required && <b aria-hidden="true">*</b>}</span>{field.description && <span className="field-description">{field.description}</span>}{field.type === "select" ? <select id={`field-${field.id}`} value={value} required={field.required} aria-required={field.required} onChange={(event) => updateValue(field.id, event.target.value)}>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : field.type === "text" ? <input id={`field-${field.id}`} value={value} required={field.required} aria-required={field.required} maxLength={field.maxLength} placeholder={field.placeholder} onChange={(event) => updateValue(field.id, event.target.value)} /> : <textarea id={`field-${field.id}`} value={value} required={field.required} aria-required={field.required} maxLength={field.maxLength} rows={field.rows ?? 8} placeholder={field.placeholder} onChange={(event) => updateValue(field.id, event.target.value)} spellCheck={false} />}</label>;
                 })}
               </div>

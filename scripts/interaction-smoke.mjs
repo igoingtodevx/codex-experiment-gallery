@@ -1,3 +1,5 @@
+/* global DataTransfer, DragEvent, File, HTMLElement, HTMLFormElement, HTMLInputElement */
+
 import { chromium, devices } from "@playwright/test";
 
 const baseUrl = process.env.BASE_URL || "http://127.0.0.1:3000";
@@ -37,12 +39,48 @@ for (const [name, options] of Object.entries({
   const workspaceOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   const runButtonVisible = await page.getByRole("button", { name: /^Run$/ }).isVisible();
 
+  let screenshotRequest = false;
+  await page.route("**/api/experiments/screenshot-to-react", async (route) => {
+    screenshotRequest = true;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        result: { componentCode: "export default function View() {}", stylesCode: ".view {}", notes: [], accessibility: [] },
+        meta: { durationMs: 1, model: "test-fixture", capabilities: ["vision"] },
+      }),
+    });
+  });
+  await page.goto(`${baseUrl}/experiments/screenshot-to-react`, { waitUntil: "networkidle" });
+  await page.evaluate(() => {
+    const drop = document.querySelector(".file-drop");
+    if (!(drop instanceof HTMLElement)) throw new Error("Screenshot drop zone missing");
+    const file = new File([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])], "dropped-screenshot.png", { type: "image/png" });
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    drop.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: transfer }));
+  });
+  await page.waitForTimeout(100);
+  const screenshotDrop = await page.evaluate(() => {
+    const input = document.querySelector("#field-file");
+    const form = document.querySelector("#experiment-run-form");
+    return {
+      displayedFile: document.querySelector(".file-drop strong")?.textContent ?? "",
+      nativeFileCount: input instanceof HTMLInputElement ? input.files?.length ?? 0 : 0,
+      formValid: form instanceof HTMLFormElement ? form.checkValidity() : false,
+    };
+  });
+  await page.locator(".header-run-button").click();
+  await page.locator(".result-callout").filter({ hasText: "Component starting point" }).waitFor({ state: "visible" });
+  const screenshotResultVisible = await page.locator(".result-callout").filter({ hasText: "Component starting point" }).isVisible();
+
   await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-  checks.push({ name, cards: await cards.count(), filteredCards, categoryCards, generatePressed, overflow, workspaceOverflow, categoryScroll, categoryHintVisible, touchHeights, hasOldProviderBadge, emptyState, runButtonVisible, consoleErrors, failedRequests });
+  checks.push({ name, cards: await cards.count(), filteredCards, categoryCards, generatePressed, overflow, workspaceOverflow, categoryScroll, categoryHintVisible, touchHeights, hasOldProviderBadge, emptyState, runButtonVisible, screenshotDrop, screenshotRequest, screenshotResultVisible, consoleErrors, failedRequests });
   await context.close();
 }
 
 await browser.close();
 for (const check of checks) console.log(JSON.stringify(check));
-const failed = checks.some((check) => check.overflow || check.workspaceOverflow || check.cards !== 10 || check.filteredCards !== 1 || check.categoryCards !== 3 || check.generatePressed !== "true" || check.hasOldProviderBadge || !check.emptyState || !check.runButtonVisible || check.consoleErrors.length || check.failedRequests.length || (check.name === "mobile" && check.touchHeights.some((height) => height < 44)));
+const failed = checks.some((check) => check.overflow || check.workspaceOverflow || check.cards !== 10 || check.filteredCards !== 1 || check.categoryCards !== 3 || check.generatePressed !== "true" || check.hasOldProviderBadge || !check.emptyState || !check.runButtonVisible || !check.screenshotRequest || !check.screenshotResultVisible || check.screenshotDrop.nativeFileCount !== 1 || !check.screenshotDrop.formValid || check.consoleErrors.length || check.failedRequests.length || (check.name === "mobile" && check.touchHeights.some((height) => height < 44)));
 if (failed) process.exit(1);
