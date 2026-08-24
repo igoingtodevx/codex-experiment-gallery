@@ -2,11 +2,12 @@
 
 ## Production target
 
+- Canonical public gallery: https://experiments.sejerlaenner.tech/
 - Full provider demo: https://hermes-vps.tail309730.ts.net/
 - Vercel deployment: https://codex-experiment-gallery.vercel.app/
 - GitHub: https://github.com/igoingtodevx/codex-experiment-gallery
 
-The full provider runtime runs on the existing Hermes VPS. Vercel can also run the provider routes when its environment is configured; the VPS remains the canonical target because it keeps the provider key isolated and avoids duplicating quota usage.
+The canonical public gallery is the Vercel custom domain above. The Vercel project currently serves provider-backed routes; the Hermes VPS remains a separately verified provider target with its own isolated environment.
 
 ## VPS service
 

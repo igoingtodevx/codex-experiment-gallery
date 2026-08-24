@@ -4,9 +4,10 @@ A live gallery of **ten** small, inspectable AI developer workflows. Each experi
 
 ## Verified public deployment
 
-- https://codex-experiment-gallery.vercel.app/ — verified anonymously with HTTP 200 during this audit.
+- Canonical: https://experiments.sejerlaenner.tech/ — verified anonymously with HTTP 200 and a valid Screenshot → React provider run.
+- Vercel alias: https://codex-experiment-gallery.vercel.app/ — verified anonymously with HTTP 200.
 
-The public Vercel deployment is a UI/server boundary deployment, but provider-backed runs require the deployment's server environment to contain an `OPENAI_API_KEY`. No provider credential is included in this repository or README.
+The canonical Vercel deployment serves the provider-backed demo. Its server environment contains the provider credential; no provider credential is included in this repository or README.
 
 ## The ten implemented experiments
 
